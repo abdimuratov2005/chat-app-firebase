@@ -25,7 +25,11 @@ export async function addUser(username: string): Promise<User> {
   const usernameSnapshot = await getDocs(usernameQuery);
 
   if (!usernameSnapshot.empty) {
-    const oldUser = usernameSnapshot.docs[0].data() as User;
+    const oldUser = {
+      ...usernameSnapshot.docs[0].data(),
+      alreadyCreated: true,
+    } as User;
+    
     return oldUser
   }
 
@@ -36,6 +40,7 @@ export async function addUser(username: string): Promise<User> {
     uuid,
     username,
     loginCode,
+    alreadyCreated: false,
     createdAt: new Date().toISOString(),
   };
 

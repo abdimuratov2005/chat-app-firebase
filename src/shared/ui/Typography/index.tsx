@@ -1,10 +1,12 @@
+import { cn } from "@/shared/lib/utils";
 import { cva } from "class-variance-authority";
 
 type TypographyVariant = "bold" | "normal"
 
 type TypographyProps = {
   variant?: TypographyVariant;
-  children?: React.ReactNode
+  children?: React.ReactNode;
+  className?: string;
 }
 
 const typography = cva("text-gray-900", {
@@ -20,9 +22,11 @@ const typography = cva("text-gray-900", {
 })
 
 export function Typography(props: TypographyProps) {
+  const { variant, className } = props;
+
   return (
     <p
-      className={typography({ variant: props.variant })}
+      className={cn(typography({ variant, className }))}
       {...props}
     >{props.children}</p>
   )

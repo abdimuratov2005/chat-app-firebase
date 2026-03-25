@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Nunito_Sans } from "next/font/google";
 import "@/shared/styles/globals.css";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
+import { AppSidebar } from "@/features/app-sidebar/ui";
+import { SidebarProvider } from "@/shared/ui/Sidebar";
+import { TooltipProvider } from "@/shared/ui/Tooltip";
 
 const nunitoSans = Nunito_Sans({subsets:['latin'],variable:'--font-sans'});
 
@@ -26,11 +29,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("font-sans", nunitoSans.variable)}>
+    <html lang="en" className={cn("font-sans h-full", nunitoSans.variable)}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}
       >
-        <>{children}</>
+        <SidebarProvider defaultOpen>
+          <TooltipProvider>
+            <AppSidebar />
+              <main>
+                {children}
+              </main>
+          </TooltipProvider>
+        </SidebarProvider>
       </body>
     </html>
   );

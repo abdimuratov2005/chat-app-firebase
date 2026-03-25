@@ -27,8 +27,11 @@ const flex = cva("flex", {
       md: "gap-4",
       lg: "gap-6",
     },
-    fullWidth: {
-      true: "w-full"
+    width: {
+      full: "w-full"
+    },
+    height: {
+      full: "h-full"
     }
   },
   defaultVariants: {
