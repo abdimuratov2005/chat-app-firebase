@@ -3,7 +3,7 @@ import { db } from "@/shared/config/firebase";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { User } from "../model/types";
 
-export async function loginWithCode(username: string, code: string): Promise<User> {
+export async function login(username: string, code: string): Promise<User> {
   if (!username) {
     throw new Error("Username is required!")
   }
@@ -21,8 +21,6 @@ export async function loginWithCode(username: string, code: string): Promise<Use
   const userDocData = usernameSnapshot.docs[0].data() as User;
 
   if (userDocData.loginCode != code) throw new Error("Incorrect code!");
-
-  console.log("succes!");
 
   return {
     ...userDocData

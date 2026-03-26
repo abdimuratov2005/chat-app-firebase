@@ -1,28 +1,28 @@
+import { MessageType } from "@/entities/message/model/types";
+import { PublicUser } from "@/entities/user/model/types";
+
+
 type ChatLastMessage = {
   senderId: string,
   createdAt: string;
   text: string,
 }
-type MessageType = "text"
-type MessageStatus = "delivered" | "read";
-type MessageReplyTo = {
-  messageUUID: string,
-  text: string,
-  senderId: string,
-};
 
 export type Chat = {
+  uuid: string;
   type: MessageType;
   members: string[];
   lastMessage: ChatLastMessage | null;
-  messages: Message | null;
+  membersInfo: Record<string, PublicUser>;
 }
 
-export type Message = {
-  senderUUID: string,
-  createdAt: string,
-  text: string,
-  editedAt: string | null,
-  status: MessageStatus,
-  replyTo: MessageReplyTo | null,
-};
+export type ChatsStore = {
+  chats: Chat[];
+  activeChatId: string | null;
+  isLoading: boolean;
+  
+  setActiveChat: (uuid: string) => void
+  createChat: (member: PublicUser, currentUser: PublicUser) => void;
+  removeChat: (user: PublicUser) => void;
+  loadChats: () => void;
+}

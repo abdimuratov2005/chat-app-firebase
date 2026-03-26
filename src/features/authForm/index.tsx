@@ -9,9 +9,23 @@ import { TypographyInlineCode } from "@/shared/ui/Typography/InlineCode";
 import { ArrowRight02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useAuthStore } from "../../processes/authSession/model/store";
+import { useRouter } from "next/navigation";
+import { useUserStore } from "@/entities/user/model/store";
+import { useEffect } from "react";
 
 export function AuthForm() {
-  const { login, register, logOut, currentUser, username, setUsername, loginCode, setLoginCode } = useAuthStore();
+  const router = useRouter();
+  const { login, register, logOut, setUsername, loginCode, setLoginCode, goToChatPage, loading, currentUser } = useAuthStore();
+  const { setCurrentUser } = useUserStore();
+
+  useEffect(() => {
+    if (currentUser) setCurrentUser(currentUser);
+  }, [currentUser])
+  
+  const goChat = () => {
+    goToChatPage();
+    router.push(process.env.NEXT_PUBLIC_LOGIN_REDIRECT_URL!);
+  }
 
   return (
     <FlexContainer
@@ -56,7 +70,11 @@ export function AuthForm() {
               color="currentColor"
               strokeWidth={2.5}
             />
-            <span className="hidden md:block">Next Step</span>
+            <span className="hidden md:block">
+              {
+                loading ? "Loading..." : "Next Step"
+              }
+            </span>
           </Button>
         </Field>
       </Motion>
@@ -70,8 +88,11 @@ export function AuthForm() {
           {currentUser?.loginCode}
         </TypographyInlineCode>
         <Button name="username" onClick={logOut} type="button">
-            Log Out
-          </Button>
+          Log Out
+        </Button>
+        <Button name="username" onClick={goChat} type="button">
+          Go to chat
+        </Button>
       </Motion>
 
       <Motion
@@ -98,7 +119,7 @@ export function AuthForm() {
           <Button
             className="md:mt-10 w-[50]! h-[50]! self-end md:w-full! md:self-end md:rounded-full md:h-9!"
             name="input-field-username"
-            onClick={register}
+            onClick={login}
             type="button"
           >
             <HugeiconsIcon

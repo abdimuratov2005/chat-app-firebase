@@ -1,3 +1,4 @@
+import { Chats } from "@/features/chats/ui";
 import { FindUserForm } from "@/features/findUser/ui/form";
 import { FindUserResult } from "@/features/findUser/ui/result";
 import { Sidebar, SidebarContent, SidebarHeader } from "@/shared/ui/Sidebar";
@@ -10,6 +11,7 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <FindUserResult />
+        <Chats />
       </SidebarContent>
     </Sidebar>
   )

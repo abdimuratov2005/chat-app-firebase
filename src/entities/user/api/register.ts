@@ -14,11 +14,7 @@ function generateLoginCode(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-export async function addUser(username: string): Promise<User> {
-  if (!username) {
-    throw new Error("Username is required");
-  }
-
+export async function register(username: string): Promise<User> {
   const usersCol = collection(db, USERS_LIST);
 
   const usernameQuery = query(usersCol, where("username", "==", username));

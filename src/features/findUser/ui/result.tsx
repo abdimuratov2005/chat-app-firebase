@@ -6,9 +6,13 @@ import { Item, ItemActions, ItemContent, ItemGroup, ItemTitle } from "@/shared/u
 import { Typography } from "@/shared/ui/Typography";
 import { Plus } from 'lucide-react'
 import { useFindUserStore } from "../model/store";
+import { useChatsStore } from "@/entities/chat/model/store";
+import { useUserStore } from "@/entities/user/model/store";
 
 export function FindUserResult() {
   const { users, loading, notFound } = useFindUserStore();
+  const { createChat } = useChatsStore();
+  const { currentUser } = useUserStore();
 
   return (
     <FlexContainer className="" direction={"col"} gap={"md"}>
@@ -16,7 +20,7 @@ export function FindUserResult() {
         {notFound && <Typography className="text-center">Not Found</Typography>}
         <ItemGroup className="gap-3">
           {users.map((user) => (
-            <Item key={user.username} variant={"outline"} role="listitem">
+            <Item key={user.uuid} variant={"outline"} role="listitem">
               <ItemContent>
                 <ItemTitle className="line-clamp-1">{user.username}</ItemTitle>
               </ItemContent>
@@ -26,6 +30,7 @@ export function FindUserResult() {
                   variant="outline"
                   className="rounded-full"
                   aria-label="Invite"
+                  onClick={() => createChat(user, { username: currentUser?.username!, uuid: currentUser?.uuid! })}
                 >
                   <Plus />
                 </Button>

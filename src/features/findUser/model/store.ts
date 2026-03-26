@@ -10,8 +10,13 @@ export const useFindUserStore = create<FindUserStore>((set) => ({
 
   setQuery: (query) => set({ query: query }),
 
-  search: async (query) => {
-    const result = await findUsers(query);
+  search: async (query, currentUserUUID) => {
+    const dataFindedUsers = await findUsers(query);
+
+    const result = dataFindedUsers.filter((user) => {
+      const userUUID = typeof user === 'string' ? user : user.uuid;
+      return userUUID !== currentUserUUID
+    })
 
     if (!result.length || !query) return set({
       users: [],

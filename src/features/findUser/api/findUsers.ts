@@ -1,9 +1,9 @@
 import { USERS_LIST } from "@/shared/api/api";
 import { db } from "@/shared/config/firebase";
 import { collection, endAt, getDocs, orderBy, query, startAt } from "firebase/firestore";
-import { User } from "@/entities/user/model/types";
+import { PublicUser } from "@/entities/user/model/types";
 
-export async function findUsers(prefix: string): Promise<User[]> {
+export async function findUsers(prefix: string): Promise<PublicUser[]> {
   const usersCol = collection(db, USERS_LIST);
 
   const usernameQuery = query(
@@ -14,5 +14,9 @@ export async function findUsers(prefix: string): Promise<User[]> {
   );
   const usernameSnapshot = await getDocs(usernameQuery);
 
-  return usernameSnapshot.docs.map((doc) => doc.data() as User);
+  return usernameSnapshot.docs.map((doc) => {
+    const { username, uuid } = doc.data() as PublicUser;
+
+    return { username, uuid }
+  }) as PublicUser[];
 }

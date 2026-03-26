@@ -1,11 +1,11 @@
-import { User } from "@/entities/user/model/types";
+import { PublicUser } from "@/entities/user/model/types";
 
 export type FindUserStore = {
-  users: User[];
+  users: PublicUser[];
   loading: boolean;
   notFound: boolean;
   query: string;
 
   setQuery: (query: string) => void;
-  search: (query: string) => Promise<void>;
+  search: (query: string, currentUserUUID: string) => Promise<void>;
 };

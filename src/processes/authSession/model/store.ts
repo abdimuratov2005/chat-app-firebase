@@ -1,31 +1,38 @@
 import { create } from "zustand";
-import { loginWithCode } from "@/entities/user/api/loginWithCode";
-import { addUser } from "@/entities/user/api/addUser";
+import { login } from "@/entities/user/api/login";
+import { register } from "@/entities/user/api/register";
 import { AuthStore } from "./types";
-import { PATHS, USER_UUID } from "@/shared/api/api";
+import { USER_UUID } from "@/shared/api/api";
+import { setCookie } from "@/shared/lib/utils";
+import { UserStore } from "@/entities/user/model/types";
 
-export const useAuthStore = create<AuthStore>((set, get) => ({
+export const useAuthStore = create<AuthStore & UserStore>((set, get) => ({
+  currentUser: null,
   username: "",
   loginCode: "",
-  currentUser: null,
+  loading: false,
+  setCurrentUser: (user) => set({ currentUser: user }),
   setLoginCode: (code) => set({ loginCode: code }),
   setUsername: (username) => set({ username: username }),
-  setCurrentUser: (user) => set({ currentUser: user }),
+  goToChatPage: () => {
+    setCookie(USER_UUID, get().currentUser?.uuid!, 7);
+  },
   register: async () => {
-    try {
-      const user = await addUser(get().currentUser?.username || get().username);
-      set({ currentUser: user })
-      document.cookie = `${USER_UUID}=${get().currentUser?.uuid}; path=${PATHS[0]}; max-age=604800`;
+    if (!get().username) return;
 
-    } catch (e: any) {
-      alert(e.message);
-    }
+    set({ loading: true });
+    const user = await register(get().username);
+    
+    set({
+      currentUser: user,
+      loading: false
+    })
   },
   login: async () => {
     try {
-      const user = await loginWithCode(get().currentUser?.username || get().username, get().loginCode);
+      const user = await login(get().username, get().loginCode);
       set({ currentUser: user })
-      document.cookie = `${USER_UUID}=${get().currentUser?.uuid}; path=${PATHS[0]}; max-age=604800`;
+      get().goToChatPage();
     } catch (e: any) {
       alert(e.message);
     }
@@ -36,6 +43,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       username: "",
       loginCode: "",
     })
-    document.cookie = `${USER_UUID}=; path=${PATHS[0]}; max-age=0`;
+    document.cookie = `${USER_UUID}=; max-age=0`;
   }
 }))
