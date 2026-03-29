@@ -1,9 +1,9 @@
-import { ChatMain } from "@/features/chat-main";
+import { ActiveChat } from "@/features/chat/ui/activeChat";
 
 export default function Page() {
   return (
     <>
-      <ChatMain></ChatMain>
+      <ActiveChat></ActiveChat>
     </>
   );
 }

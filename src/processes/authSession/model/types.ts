@@ -1,13 +1,14 @@
 export type AuthStore = {
   username: string;
-  loginCode: string;
-  loading: boolean;
+  password: string;
+  
+  isLoading: boolean;
+  isUsernameSetted: boolean;
+  isPasswordSetted: boolean;
 
   setUsername: (username: string) => void;
-  setLoginCode: (code: string) => void;
+  setPassword: (password: string) => void;
 
-  login: () => Promise<void>;
-  register: () => Promise<void>;
+  onAuth: () => Promise<void>;
   logOut: () => void;
-  goToChatPage: () => void;
 }

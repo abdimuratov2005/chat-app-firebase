@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Nunito_Sans } from "next/font/google";
 import "@/shared/styles/globals.css";
 import { cn } from "@/shared/lib/utils";
-import { UserProvider } from "@/processes/_";
+import { UserProvider } from "@/processes/UserProvider";
 import { getCurrentUser } from "@/entities/user/api/getCurrentUser";
+import { ThemeProvider } from "@/shared/ui/ThemeProvider";
 
-const nunitoSans = Nunito_Sans({subsets:['latin'],variable:'--font-sans'});
+const nunitoSans = Nunito_Sans({ subsets: ["latin"], variable: "--font-sans" });
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,15 +29,24 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const user = await getCurrentUser();
-  
+
   return (
-    <html lang="en" className={cn("font-sans h-full", nunitoSans.variable)}>
+    <html
+      lang="en"
+      className={cn("font-sans h-full", nunitoSans.variable)}
+      suppressHydrationWarning
+    >
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}
       >
-        <UserProvider user={user}>
-          {children}
-        </UserProvider>
+        <ThemeProvider
+          attribute={"class"}
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange={false}
+        >
+          <UserProvider user={user}>{children}</UserProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

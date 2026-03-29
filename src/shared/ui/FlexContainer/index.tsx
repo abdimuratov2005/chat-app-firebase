@@ -4,7 +4,9 @@ const flex = cva("flex", {
   variants: {
     direction: {
       row: "flex-row",
+      rowRevers: "flex-row-reverse",
       col: "flex-col",
+      colRevers: "flex-col-reverse"
     },
     align: {
       start: "items-start",

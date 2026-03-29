@@ -9,7 +9,7 @@ type ChatLastMessage = {
 }
 
 export type Chat = {
-  uuid: string;
+  id: string;
   type: MessageType;
   members: string[];
   lastMessage: ChatLastMessage | null;

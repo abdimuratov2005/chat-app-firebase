@@ -1,48 +1,53 @@
 import { create } from "zustand";
-import { login } from "@/entities/user/api/login";
-import { register } from "@/entities/user/api/register";
 import { AuthStore } from "./types";
 import { USER_UUID } from "@/shared/api/api";
-import { setCookie } from "@/shared/lib/utils";
 import { UserStore } from "@/entities/user/model/types";
+import { auth } from "@/entities/user/api/auth";
+import { setCookie } from "@/shared/lib/utils";
 
 export const useAuthStore = create<AuthStore & UserStore>((set, get) => ({
-  currentUser: null,
   username: "",
-  loginCode: "",
-  loading: false,
-  setCurrentUser: (user) => set({ currentUser: user }),
-  setLoginCode: (code) => set({ loginCode: code }),
-  setUsername: (username) => set({ username: username }),
-  goToChatPage: () => {
-    setCookie(USER_UUID, get().currentUser?.uuid!, 7);
-  },
-  register: async () => {
-    if (!get().username) return;
+  password: "",
 
-    set({ loading: true });
-    const user = await register(get().username);
-    
+  isUsernameSetted: false,
+  isPasswordSetted: false,
+
+  currentUser: null,
+
+  isLoading: false,
+
+  setCurrentUser: (user) => set({ currentUser: user }),
+  setPassword: (password) => set({ password: password }),
+  setUsername: (username) => set({ username: username }),
+
+  onAuth: async () => {
+    const { username, password } = get();
+
+    if (!username || !password) return;
+
+    set({ isLoading: true });
+
+    const user = await auth(username, password);
+
+    if (!Object.hasOwn(user, "error")) {
+      setCookie(USER_UUID, user.id, 7);
+    }
+
     set({
       currentUser: user,
-      loading: false
-    })
+      password: "",
+      isLoading: false,
+    });
   },
-  login: async () => {
-    try {
-      const user = await login(get().username, get().loginCode);
-      set({ currentUser: user })
-      get().goToChatPage();
-    } catch (e: any) {
-      alert(e.message);
-    }
-  },
+
   logOut: () => {
     set({
       currentUser: null,
       username: "",
-      loginCode: "",
-    })
-    document.cookie = `${USER_UUID}=; max-age=0`;
-  }
-}))
+      password: "",
+      isUsernameSetted: false,
+      isPasswordSetted: false,
+    });
+    setCookie(USER_UUID, '', 0);
+  },
+}));

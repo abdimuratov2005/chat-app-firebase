@@ -14,7 +14,7 @@ export const useFindUserStore = create<FindUserStore>((set) => ({
     const dataFindedUsers = await findUsers(query);
 
     const result = dataFindedUsers.filter((user) => {
-      const userUUID = typeof user === 'string' ? user : user.uuid;
+      const userUUID = typeof user === 'string' ? user : user.id;
       return userUUID !== currentUserUUID
     })
 

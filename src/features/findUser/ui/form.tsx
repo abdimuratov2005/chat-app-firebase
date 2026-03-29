@@ -13,7 +13,7 @@ export function FindUserForm() {
   const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     setQuery(value);
-    search(value, currentUser?.uuid!);
+    search(value, currentUser?.id!);
   };
 
   return (

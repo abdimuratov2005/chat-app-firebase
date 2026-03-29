@@ -1,48 +1,41 @@
 import { create } from "zustand";
 import { Message, MessageStore } from "./types";
-import { getMessages } from "../api/getMessages";
 import { useUserStore } from "@/entities/user/model/store";
 import { sendMessage } from "../api/sendMessage";
 import { subscribeToMessages } from "../api/subscribeToMessages";
 
 export const useMessageStore = create<MessageStore>((set, get) => ({
+  text: "",
   messages: [],
   isLoading: false,
 
-  loadMessages: async (chatID) => {
-    set({ isLoading: true });
+  setText: (text) => set({ text }),
 
-    const messages = await getMessages(chatID);
-    set({
-      messages,
-      isLoading: false
-    })
-  },
-  sendMessage: async (currentChatID, text) => {
+  sendMessage: async (currentChatID) => {
     const currentUser = useUserStore.getState().currentUser;
+    const { text } = get();
+
     if (!currentUser) return;
 
     const tempMessage = {
       chatId: currentChatID,
-      senderUUID: currentUser.uuid,
+      senderUUID: currentUser.id,
       text,
       status: "sending",
     } as Message;
-    
-    const newMessage = await sendMessage(tempMessage);
 
-    set((state) => ({
-      messages: [...state.messages, newMessage]
-    }))
+    await sendMessage(tempMessage);
+
+    set({ text: "" });
   },
 
   subscribe: (chatId) => {
     const unsubscribe = subscribeToMessages(chatId, (messages) => {
-      set({ messages })
-    })
-    return unsubscribe
+      set({ messages });
+    });
+    return unsubscribe;
   },
   clearMessages: () => {
-    set({ messages: [] })
-  }
-}))
+    set({ messages: [] });
+  },
+}));

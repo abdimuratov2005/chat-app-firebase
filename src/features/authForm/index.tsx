@@ -1,31 +1,46 @@
-'use client'
+"use client";
 
 import { Button } from "@/shared/ui/Button";
-import { Field, FieldDescription, FieldLabel } from "@/shared/ui/Field";
+import { Field, FieldLabel } from "@/shared/ui/Field";
 import { FlexContainer } from "@/shared/ui/FlexContainer";
 import { Input } from "@/shared/ui/Input";
 import { Motion } from "@/shared/ui/motion";
-import { TypographyInlineCode } from "@/shared/ui/Typography/InlineCode";
-import { ArrowRight02Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { useAuthStore } from "../../processes/authSession/model/store";
+import { useAuthStore } from "@/processes/authSession/model/store";
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/entities/user/model/store";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Spinner } from "@/shared/ui/Spinner";
+import { ArrowRight, Eye, EyeOff } from "lucide-react";
+import { Typography } from "@/shared/ui/Typography";
 
 export function AuthForm() {
   const router = useRouter();
-  const { login, register, logOut, setUsername, loginCode, setLoginCode, goToChatPage, loading, currentUser } = useAuthStore();
+  const {
+    username,
+    password,
+    isLoading,
+    isUsernameSetted,
+    currentUser,
+    setUsername,
+    setPassword,
+    onAuth,
+  } = useAuthStore();
   const { setCurrentUser } = useUserStore();
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [focused, setFocused] = useState<"username" | "password" | null>(
+    "username",
+  );
 
   useEffect(() => {
-    if (currentUser) setCurrentUser(currentUser);
-  }, [currentUser])
-  
-  const goChat = () => {
-    goToChatPage();
-    router.push(process.env.NEXT_PUBLIC_LOGIN_REDIRECT_URL!);
-  }
+    if (!currentUser?.error) {
+      setCurrentUser(currentUser);
+      if (!isLoading) router.push(process.env.NEXT_PUBLIC_LOGIN_REDIRECT_URL!);
+    }
+  }, [currentUser]);
+
+  const isAuthButtonEnabled = username.length && password.length;
+  const focusUsername = focused === "username" || username.length;
+  const focusPassword = focused === "password" || password.length;
 
   return (
     <FlexContainer
@@ -34,105 +49,121 @@ export function AuthForm() {
       align={"center"}
       width={"full"}
       height={"full"}
+      gap={"lg"}
     >
-      <Motion
-        effects={["fade", "slideRight"]}
-        isVisible={!Boolean(currentUser)}
-        className="w-full"
-      >
-        <Field data-disabled={Boolean(currentUser)} className="w-[85%] md:w-[50%] lg:w-[40%] xl:w-[400]">
-          <FieldLabel className="font-medium" htmlFor="input-field-username">
-            Username
-          </FieldLabel>
-          <Input
-            disabled={Boolean(currentUser)}
-            data-i
-            id="input-field-username"
-            type="name"
-            placeholder="Enter your username"
-            onKeyDown={(event) => event.key === "Enter" && register}
-            onChange={(event) => setUsername(event.target.value)}
-            name="input-field-username"
-          />
-          <FieldDescription>
-            Choose a unique username for your account.
-          </FieldDescription>
-          <Button
-            className="md:mt-10 w-[50]! h-[50]! self-end md:w-full! md:self-end md:rounded-full md:h-9!"
-            name="input-field-username"
-            onClick={register}
-            type="button"
-          >
-            <HugeiconsIcon
-              className="block md:hidden"
-              icon={ArrowRight02Icon}
-              size={32}
-              color="currentColor"
-              strokeWidth={2.5}
+      <div className="text-center space-y-1">
+        <Typography as={"h2"} variant={"focusTitle"}>
+          Chat
+        </Typography>
+        <Typography as={"p"} className="text-sm">
+          Sign in to continue
+        </Typography>
+      </div>
+      <div className="flex gap-1 w-[85%] md:w-[50%] lg:w-[40%] xl:w-[400]">
+        <Field id="authForm" data-disabled={isLoading}>
+          <div className="relative">
+            <Input
+              disabled={isLoading}
+              value={username}
+              id="input-field-username"
+              type="name"
+              onChange={(event) => setUsername(event.target.value)}
+              onFocus={() => setFocused("username")}
+              onBlur={() => setFocused(null)}
+              className="h-[48] text-xl! pt-6 pl-4"
+              required
+              autoFocus
             />
-            <span className="hidden md:block">
-              {
-                loading ? "Loading..." : "Next Step"
+            <Motion
+              initial={{
+                top: 12,
+              }}
+              animate={{
+                top: focusUsername ? 0 : 12,
+              }}
+              className="absolute left-[20] pointer-events-none"
+              transition={{ duration: 0.2 }}
+            >
+              <FieldLabel
+                htmlFor="input-field-username"
+                className={`transition-all ${focusUsername ? "text-[14px]" : "text-base"}`}
+              >
+                Username
+              </FieldLabel>
+            </Motion>
+          </div>
+          <div className="relative">
+            <Input
+              aria-invalid={
+                !password.length && currentUser?.error === "inCorrectPassword"
               }
-            </span>
-          </Button>
+              disabled={isLoading}
+              value={password}
+              id="input-field-password"
+              type={showPassword ? "text" : "password"}
+              onKeyDown={(event) => event.key === "Enter" && onAuth}
+              onChange={(event) => setPassword(event.target.value)}
+              onFocus={() => setFocused("password")}
+              onBlur={() => setFocused(null)}
+              name="input-field-password"
+              className="h-[48] text-xl! pt-6 pl-4"
+              required
+            />
+            <Motion
+              initial={{
+                top: 12,
+                fontSize: 12,
+              }}
+              animate={{
+                top: focusPassword ? 0 : 12,
+              }}
+              className="absolute left-[20] pointer-events-none"
+              transition={{ duration: 0.2 }}
+            >
+              <FieldLabel
+                htmlFor="input-field-password"
+                className={`transition-all ${focusPassword ? "text-[14px]" : "text-base"}`}
+              >
+                Password
+              </FieldLabel>
+            </Motion>
+            <div className="absolute w-[45]! h-[40] right-1 top-1">
+              <Button
+                disabled={isLoading}
+                variant={"ghost"}
+                className={`h-full cursor-pointer`}
+                name="input-field-username"
+                onClick={() => setShowPassword(!showPassword)}
+                type="button"
+              >
+                {showPassword ? (
+                  <Eye size={32} strokeWidth={2.5} />
+                ) : (
+                  <EyeOff size={32} strokeWidth={2.5} />
+                )}
+              </Button>
+            </div>
+          </div>
         </Field>
-      </Motion>
-
-      <Motion
-        effects={["fade", "slideRight"]}
-        isVisible={Boolean(currentUser) && Boolean(!currentUser?.alreadyCreated)}
-        className="w-full"
-      >
-        <TypographyInlineCode>
-          {currentUser?.loginCode}
-        </TypographyInlineCode>
-        <Button name="username" onClick={logOut} type="button">
-          Log Out
-        </Button>
-        <Button name="username" onClick={goChat} type="button">
-          Go to chat
-        </Button>
-      </Motion>
-
-      <Motion
-        effects={["fade", "slideRight"]}
-        isVisible={Boolean(currentUser) && Boolean(currentUser?.alreadyCreated)}
-        className="w-full"
-      >
-        <Field className="w-[85%] md:w-[50%]">
-          <Button name="username" onClick={logOut} type="button">
-            Log Out
-          </Button>
-          <FieldLabel className="font-medium" htmlFor="input-field-code">
-            Log in
-          </FieldLabel>
-          <Input
-            id="input-field-code"
-            placeholder="Enter your code"
-            type="number"
-            onKeyDown={(event) => event.key === "Enter" && login}
-            value={loginCode}
-            onChange={(event) => setLoginCode(event.target.value)}
-            name="input-field-code"
-          />
+      </div>
+      <div className="rounded-full">
+        <Motion className={`w-[50] h-[50]`}>
           <Button
-            className="md:mt-10 w-[50]! h-[50]! self-end md:w-full! md:self-end md:rounded-full md:h-9!"
+            disabled={!isAuthButtonEnabled}
+            variant={"outline"}
+            className={`self-end w-full h-full cursor-pointer`}
             name="input-field-username"
-            onClick={login}
+            onClick={onAuth}
             type="button"
           >
-            <HugeiconsIcon
-              className="block md:hidden"
-              icon={ArrowRight02Icon}
-              size={32}
-              color="currentColor"
-              strokeWidth={2.5}
-            />
-            <span className="hidden md:block">Next Step</span>
+            {isLoading ? (
+              <Spinner data-icon="inline-end" />
+            ) : (
+              <ArrowRight size={38} strokeWidth={3} />
+            )}
           </Button>
-        </Field>
-      </Motion>
+        </Motion>
+      </div>
     </FlexContainer>
   );
 }

@@ -1,33 +1,36 @@
 import { cn } from "@/shared/lib/utils";
-import { cva } from "class-variance-authority";
+import { cva, VariantProps } from "class-variance-authority";
 
-type TypographyVariant = "bold" | "normal"
-
-type TypographyProps = {
-  variant?: TypographyVariant;
-  children?: React.ReactNode;
-  className?: string;
-}
-
-const typography = cva("text-gray-900", {
+const typography = cva("", {
   variants: {
     variant: {
-      bold: "font-bold text-lg",
-      normal: "font-normal text-base"
-    }
+      normal: "font-normal",
+      bold: "font-bold",
+      focusTitle: "scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0"
+    },
   },
   defaultVariants: {
-    variant: "normal"
-  }
-})
+    variant: "normal",
+  },
+});
 
-export function Typography(props: TypographyProps) {
-  const { variant, className } = props;
+type TypographyProps<T extends React.ElementType> = {
+  as?: T;
+  className?: string;
+  children?: React.ReactNode;
+} & VariantProps<typeof typography> &
+  Omit<React.ComponentPropsWithoutRef<T>, "as" | "className">;
+
+export function Typography<T extends React.ElementType = "p">(
+  props: TypographyProps<T>,
+) {
+  const { as, variant, className, children, ...rest } = props;
+
+  const Component = as || "p";
 
   return (
-    <p
-      className={cn(typography({ variant, className }))}
-      {...props}
-    >{props.children}</p>
-  )
+    <Component className={cn(typography({ variant }), className)} {...rest}>
+      {children}
+    </Component>
+  );
 }

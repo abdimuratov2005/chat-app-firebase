@@ -1,26 +1,28 @@
 import { CHAT_LIST } from "@/shared/api/api";
 import { db } from "@/shared/config/firebase";
-import { doc, setDoc } from "firebase/firestore";
+import { collection, doc, setDoc} from "firebase/firestore";
 import { Chat } from "../model/types";
 import { PublicUser } from "@/entities/user/model/types";
 
 export async function createChat(member: PublicUser, currentUser: PublicUser):Promise<Chat> {
-  const uuid = crypto.randomUUID();
+  const chatsCol = collection(db, CHAT_LIST);
 
-  const newChat: Chat = {
-    uuid,
+  const newChat = {
     type: "text",
-    members: [member.uuid, currentUser.uuid],
+    members: [member.id, currentUser.id],
     lastMessage: null,
     membersInfo: {
-      [member.uuid]: { ...member },
-      [currentUser.uuid]: { ...currentUser }
+      [member.id]: { ...member },
+      [currentUser.id]: { ...currentUser }
     }
-  }
-  
-  const chatsRef = doc(db, CHAT_LIST, uuid)
+  } as Chat;
 
-  await setDoc(chatsRef, newChat)
+  const docRef = await doc(chatsCol)
+
+  await setDoc(docRef, {
+    ...newChat,
+    id: docRef.id,
+  } as Chat)
   
-  return newChat;
+  return newChat
 }

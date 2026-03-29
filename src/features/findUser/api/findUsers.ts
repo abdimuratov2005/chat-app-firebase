@@ -15,8 +15,8 @@ export async function findUsers(prefix: string): Promise<PublicUser[]> {
   const usernameSnapshot = await getDocs(usernameQuery);
 
   return usernameSnapshot.docs.map((doc) => {
-    const { username, uuid } = doc.data() as PublicUser;
+    const { username, id } = doc.data() as PublicUser;
 
-    return { username, uuid }
+    return { username, id }
   }) as PublicUser[];
 }
